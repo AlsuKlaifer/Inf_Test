@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="2 Test\LINQ\" />
+    <Folder Include="2 Test\Trees\" />
+    <Folder Include="2 Test\Event\" />
+  </ItemGroup>
+
 </Project>
