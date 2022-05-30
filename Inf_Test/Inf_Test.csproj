@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="2 Test\LINQ\" />
-    <Folder Include="2 Test\Trees\" />
-    <Folder Include="2 Test\Event\" />
+    <Compile Remove="2 Test\**" />
+    <EmbeddedResource Remove="2 Test\**" />
+    <None Remove="2 Test\**" />
   </ItemGroup>
 
 </Project>

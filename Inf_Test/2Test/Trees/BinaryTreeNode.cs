@@ -38,7 +38,8 @@ namespace Inf_Test._2Test.Trees
         }
         public int GetNodeHeight()
         {
-            return this.Parent == null ? 0 : this.Parent.GetNodeHeight() + 1;
+            //return this.Parent == null ? 0 : this.Parent.GetNodeHeight() + 1;
+            return this == null ? 0 : Math.Max(this.Left.GetNodeHeight(), this.Right.GetNodeHeight()) + 1;
         }
     }
 }

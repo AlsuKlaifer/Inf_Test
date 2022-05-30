@@ -71,81 +71,131 @@ namespace Inf_Test._2Test.Linq
              */
 
             //1 task
-            var list1 = new List<Product>
-            {
-                new Product { Id = 5, Name = "Аквариум 200 литров" },
-                new Product { Id = 6, Name = "Фильтр" },
-                new Product { Id = 7, Name = "Термометр" },
-            };
-            var check = new Check(list1, prices);
-            check.GetCheck(prices);
+            var check = new List<Check>();
+            check.Add(new Check(products[0], 2));
+            check.Add(new Check(products[1], 3));
+            check.Add(new Check(products[2], 1));
+
+            //2 task
+            check.ForEach(x => Console.WriteLine($"{x.Product.Name} - {x.Count} шт - "));
+            //var result = check.GroupJoin(
+            //    prices,
+            //    b => b.Product.Id,
+            //    p => p.ProductId,
+            //    (b, p) => new { b, p })
+            //    .SelectMany(x => x.b, (bProdId, pPriceProdId) => 
+            //    new {bp = bProdId.b.Name, pp = pPriceProdId.};
+            var sum = check.Join(prices.Where(x => x.IsActual),
+                b => b.Product.Id,
+                p => p.ProductId,
+                (b, p) => b.Count * p.Sum).Sum();
+            Console.WriteLine(sum);
 
             //3 task
-            foreach (var product in products)
-            {
-                var list3 = (from x in prices where x.ProductId == product.Id select x.Sum).ToList();
-                decimal result = list3.Average();
-                Console.WriteLine(result);
-            }
+            prices
+                .GroupBy(x => x.ProductId)
+                .Select(g => new { g.Key, AvSum = g.Average(y => y.Sum) })
+                .ToList()
+                .ForEach(x => Console.WriteLine($"{x.Key} - {x.AvSum}"));
 
             //4 task
-            var list4 = new List<Discount> 
-            {
-                new Discount(1, 15),
-                new Discount(3, 20)
-            };
+            //var list4 = new List<Discount> 
+            //{
+            //    new Discount(1, 15),
+            //    new Discount(3, 20)
+            //};
+            var dpl = new List<DiscountPack>();
+            dpl.Add(new DiscountPack(
+                new List<Product>() { products[4], products[5], products[5] },
+                15));
+            dpl.Add(new DiscountPack(
+                new List<Product>() { products[3], products[5], products[5] },
+                10));
+            dpl.Add(new DiscountPack(
+                new List<Product>() { products[2], products[5] },
+               5));
+            dpl.Add(new DiscountPack(
+                new List<Product>() { products[1], products[5] },
+               5));
+            dpl.Add(new DiscountPack(
+                new List<Product>() { products[0], products[5] },
+               5));
 
-            var list5 = 
-                (from l in list4
-                from x in prices
-                where (l.productId == x.ProductId && x.IsActual == true)
-                select (products.First(z => z.Id == x.ProductId).Name, x.Sum, x.Sum * (1 - (l.Discountt / 100)))
-            ).ToList();
-            foreach (var b1 in list5)
+            //var list5 = 
+            //    (from l in list4
+            //    from x in prices
+            //    where (l.productId == x.ProductId && x.IsActual == true)
+            //    select (products.First(z => z.Id == x.ProductId).Name, x.Sum, x.Sum * (1 - (l.Discountt / 100)))
+            //).ToList();
+            //foreach (var b1 in list5)
+            //{
+            //    Console.WriteLine($"{b1.Name} \t {b1.Sum} \t {b1.Item3}");
+            //}
+
+            //5 task
+            foreach (var dp in dpl)
             {
-                Console.WriteLine($"{b1.Name} \t {b1.Sum} \t {b1.Item3}");
+                var pl = dp.ProductList;
+                pl.Join(prices.Where(x => x.IsActual),
+                    p => p.Id,
+                    pri => pri.ProductId,
+                    (p, pri) => new
+                    {
+                        p.Name,
+                        pri.Sum,
+                        DisSum = pri.Sum * (100 - dp.Discount) / 100
+                    })
+                    .ToList()
+                    .ForEach(x => Console.WriteLine($"{x.Name}, {x.Sum}, {x.DisSum}"));
             }
         }
 
-        public class Discount
+        public class DiscountPack
         {
-            public int productId;
-            public int Discountt;
-            public Discount(int id, int dis)
+            public List<Product> ProductList;
+            public int Discount;
+            public DiscountPack(List<Product> pl, int d)
             {
-                Discountt = dis;
-                productId = id;
+                ProductList = pl;
+                Discount = d;
             }
         }
         /// <summary>
-        /// Счет
+        /// Счет (пара - продукт и количество)
         /// </summary>
         public class Check
         {
-            private decimal money;
-            private List<Product> products;
-            public Check(List<Product> prod, List<Price> prices)
+            public Product Product;
+            public int Count;
+            public Check(Product p, int c)
             {
-                products = prod;
-                var productsId = (from pr in products select pr.Id).ToList();
-                var res = new List<decimal>();
-                res = (from x in prices
-                       where
-      (productsId.Contains(x.ProductId) == true && x.IsActual == true)
-                       select x.Sum).ToList();
-                money = res.Sum();
+                Product = p;
+                Count = c;
             }
-            public void GetCheck(List<Price> prices)
-            {
-                Console.WriteLine("Товары:");
-                foreach (var product in products)
-                {
-                    string s1 = product.Name;
-                    var price = prices.First(x => x.ProductId == product.Id);
-                    s1 += Convert.ToString(price.Sum);
-                }
-                Console.WriteLine($"Итого: {money}");
-            }
+      //      private decimal money;
+      //      private List<Product> products;
+      //      public Check(List<Product> prod, List<Price> prices)
+      //      {
+      //          products = prod;
+      //          var productsId = (from pr in products select pr.Id).ToList();
+      //          var res = new List<decimal>();
+      //          res = (from x in prices
+      //                 where
+      //(productsId.Contains(x.ProductId) == true && x.IsActual == true)
+      //                 select x.Sum).ToList();
+      //          money = res.Sum();
+      //      }
+      //      public void GetCheck(List<Price> prices)
+      //      {
+      //          Console.WriteLine("Товары:");
+      //          foreach (var product in products)
+      //          {
+      //              string s1 = product.Name;
+      //              var price = prices.First(x => x.ProductId == product.Id);
+      //              s1 += Convert.ToString(price.Sum);
+      //          }
+      //          Console.WriteLine($"Итого: {money}");
+      //      }
         }
     }
 }

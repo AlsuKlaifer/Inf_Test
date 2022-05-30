@@ -1,9 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Inf_Test._2Test.Trees;
+using Inf_Test._2Test.Linq;
 
 
-var a = new Runner();
-a.Run();
+//var a = new Runner();
+//a.Run();
+
+var list = new Linq();
+list.Run();
 
 //var list = new CustomLinkedList<int>(new int[] { 1, 2, 3, 4, 5, 6 });
 //list.RemoveTheThirdFromEnd();
